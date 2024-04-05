@@ -1,0 +1,352 @@
+openapi: 3.0.3
+info:
+  title: Elice Board - OpenAPI 3.0
+  description: "게시판 서버입니다"
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:3000/api/v1
+    description: 개발 서버(api/v1)
+tags:
+  - name: post
+    description: 게시글
+paths:
+  /posts:
+    get:
+      tags:
+        - post
+      summary: 모든 게시글 가져오기
+      description: 게시판에 있는 모든 게시글 가져오기
+      operationId: getPosts
+      responses:
+        "200":
+          description: 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FullPost"
+                  error:
+                    type: string
+                    nullable: true
+    post:
+      tags:
+        - post
+      summary: 게시글 추가
+      description: 게시글을 게시판에 추가
+      operationId: addPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Post"
+        required: true
+      responses:
+        "200":
+          description: 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Post"
+                  error:
+                    type: string
+                    nullable: true
+        "400":
+          description: title, content, author중 하나라도 없는 경우
+  /posts/{postId}:
+    get:
+      tags:
+        - post
+      summary: 특정 게시글 가져오기
+      description: 게시글 ID로 게시글 하나 가져오기
+      operationId: getPost
+      parameters:
+        - name: postId
+          in: path
+          description: 게시글 ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/FullPost"
+                  error:
+                    type: string
+                    nullable: true
+        "404":
+          description: 해당 게시글이 존재하지 않는 경우
+    put:
+      tags:
+        - post
+      summary: 게시글 수정
+      description: 게시글 ID로 게시글 내용 수정
+      operationId: updatePost
+      parameters:
+        - name: postId
+          in: path
+          description: 게시글 ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Post"
+        required: true
+      responses:
+        "200":
+          description: 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Post"
+                  error:
+                    type: string
+                    nullable: true
+        "400":
+          description: title, content, author 모두 없는 경우
+        "404":
+          description: 해당 게시글이 존재하지 않는 경우
+    delete:
+      tags:
+        - post
+      summary: 게시글 삭제
+      description: 게시글 ID로 게시글 삭제
+      operationId: deletePost
+      parameters:
+        - name: postId
+          in: path
+          description: 게시글 ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Post"
+                  error:
+                    type: string
+                    nullable: true
+        "404":
+          description: 해당 게시글이 존재하지 않는 경우
+  /posts/{postId}/comments:
+    get:
+      tags:
+        - post
+      summary: 특정 게시글에 있는 모든 댓글 가져오기
+      description: 특정 게시글에 있는 모든 댓글 가져오기
+      operationId: getPostComments
+      parameters:
+        - name: postId
+          in: path
+          description: 게시글 ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Comment"
+                  error:
+                    type: string
+                    nullable: true
+    post:
+      tags:
+        - post
+      summary: 특정 게시글에 댓글 달기
+      description: 특정 게시글에 댓글 달기
+      operationId: addPostComment
+      parameters:
+        - name: postId
+          in: path
+          description: 게시글 ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Comment"
+        required: true
+      responses:
+        "200":
+          description: 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Comment"
+                  error:
+                    type: string
+                    nullable: true
+        "400":
+          description: postId, content, author중 하나라도 없는 경우
+  /posts/{postId}/comments/{commentId}:
+    put:
+      tags:
+        - post
+      summary: 특정 게시글에 달린 하나의 댓글 수정
+      description: 특정 게시글에 달린 하나의 댓글을 수정(ID로)
+      operationId: updatePostComment
+      parameters:
+        - name: postId
+          in: path
+          description: 게시글 ID
+          required: true
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          description: 댓글 ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Comment"
+        required: true
+      responses:
+        "200":
+          description: 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Comment"
+                  error:
+                    type: string
+                    nullable: true
+        "400":
+          description: content가 없는 경우
+        "404":
+          description: 해당 게시글이나 댓글이 존재하지 않는 경우
+    delete:
+      tags:
+        - post
+      summary: 게시글 삭제
+      description: 게시글 ID로 게시글 삭제
+      operationId: deletePostComment
+      parameters:
+        - name: postId
+          in: path
+          description: 게시글 ID
+          required: true
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          description: 댓글 ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Comment"
+                  error:
+                    type: string
+                    nullable: true
+        "404":
+          description: 해당 게시글이나 댓글이 존재하지 않는 경우
+components:
+  schemas:
+    Post:
+      type: object
+      required:
+        - title
+        - content
+        - author
+      properties:
+        title:
+          type: string
+          example: 게시글 제목
+        content:
+          type: string
+          example: 게시글 내용입니다
+        author:
+          type: string
+          example: 게시글 작성자명입니다
+    Comment:
+      type: object
+      required:
+        - postId
+        - content
+        - author
+      properties:
+        postId:
+          type: string
+          example: 65084f52e037726473873f88
+        content:
+          type: string
+          example: 댓글 내용입니다
+        author:
+          type: string
+          example: 댓글 작성자명입니다
+    FullPost:
+      type: object
+      required:
+        - title
+        - content
+        - author
+        - comments
+      properties:
+        title:
+          type: string
+          example: 게시글 제목
+        content:
+          type: string
+          example: 게시글 내용입니다
+        author:
+          type: string
+          example: 게시글 작성자명입니다
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Comment"
