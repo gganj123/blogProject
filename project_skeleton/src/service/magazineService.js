@@ -1,5 +1,7 @@
 const MagazinePost = require("../db/repository/magazinePostRepository");
 const Like = require("../db/repository/likeRepository"); // Like 모델을 가져옵니다.
+const Bookmark = require("../db/repository/bookmarkRepository");
+
 const { ObjectId } = require("mongoose").Types;
 
 // 매거진 포스트 생성
@@ -88,7 +90,6 @@ async function deleteMagazinePost(postId) {
 }
 
 // 게시물의 좋아요를 처리하는 함수
-const mongoose = require("mongoose");
 
 async function magazineToggleLike(user_id, post_id) {
   try {
@@ -117,15 +118,15 @@ async function magazineToggleLike(user_id, post_id) {
     throw error;
   }
 }
-// 게시물의 좋아요 상태 함수
-async function getMagazineWithLikeStatus(post_id, user_id) {
+// 매거진 포스트의 좋아요 상태 함수
+async function getMagazinePostWithLikeStatus(post_id, user_id) {
   try {
     const postId = new ObjectId(post_id);
     const userId = new ObjectId(user_id);
 
-    const magazine = await MagazinePost.findById(postId);
-    if (!magazine) {
-      throw new Error("잡지를 찾을 수 없습니다.");
+    const magazinePost = await MagazinePost.findById(postId);
+    if (!magazinePost) {
+      throw new Error("매거진 포스트를 찾을 수 없습니다.");
     }
 
     const like = await Like.findOne({
@@ -136,14 +137,42 @@ async function getMagazineWithLikeStatus(post_id, user_id) {
     const isLikedByUser = like ? true : false;
 
     return {
-      magazine: magazine,
+      magazinePost: magazinePost,
       isLikedByUser: isLikedByUser,
     };
   } catch (error) {
-    console.error("잡지 정보 조회 중 오류 발생:", error);
+    console.error("매거진 포스트 정보 조회 중 오류 발생:", error);
     throw error;
   }
 }
+// 매거진의 북마크 상태 함수
+async function getMagazinePostWithBookmarkStatus(post_id, user_id) {
+  try {
+    const postId = new ObjectId(post_id);
+    const userId = new ObjectId(user_id);
+
+    const magazinePost = await MagazinePost.findById(postId);
+    if (!magazinePost) {
+      throw new Error("매거진을 찾을 수 없습니다.");
+    }
+
+    const bookmark = await Bookmark.findOne({
+      user_id: userId,
+      post_id: postId,
+    });
+
+    const isBookmarkedByUser = bookmark ? true : false;
+
+    return {
+      magazine: magazinePost,
+      isBookmarkedByUser: isBookmarkedByUser,
+    };
+  } catch (error) {
+    console.error("매거진 정보 조회 중 오류 발생:", error);
+    throw error;
+  }
+}
+
 module.exports = {
   createMagazinePost,
   getAllMagazinePosts,
@@ -151,5 +180,6 @@ module.exports = {
   updateMagazinePost,
   deleteMagazinePost,
   magazineToggleLike,
-  getMagazineWithLikeStatus,
+  getMagazinePostWithLikeStatus,
+  getMagazinePostWithBookmarkStatus,
 };
