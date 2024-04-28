@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 FROM node:16
 
 WORKDIR /app
@@ -10,3 +11,17 @@ COPY . /app/
 EXPOSE 3000
 
 CMD ["npm", "start"]
+=======
+FROM node:16
+
+WORKDIR /app
+
+COPY package.json package-lock.json /app/
+RUN npm install
+
+COPY . /app/
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+>>>>>>> 782388b0ef1d06a5115777e87831afc09ef3b80e
